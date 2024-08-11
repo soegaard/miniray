@@ -1,0 +1,53 @@
+#lang rhombus
+// Run this program:
+//    racket listing3.rhm > listing3.ppm
+
+// Listing 3
+//   https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+// 2.  Output an Image
+// 2.1 The PPM Image Format
+// 2.3 Adding a Progress Indicator
+
+// This is the same as listing 1, but now we have added a progress indicator.
+
+  
+// convert a number x to a floating point number
+fun fl(x):
+  1. * x
+
+// convert a number x to an integer by rounding down
+fun int(x):
+  math.exact(math.floor(x))
+
+
+// Internally colors are represented by a triple of
+// floating points between 0.0 and 1.0.
+
+fun log(x, ...):
+  Port.Output.current_error().println(x, ...)
+
+fun main():
+  // Image
+  def imageWidth  = 255
+  def imageHeight = 255
+
+  // Render
+  println("P3")
+  println(imageWidth, imageHeight, 255) // 255 is max color
+
+  for (j: 0..imageHeight):
+    log("Scanlines remaining:", imageHeight - j)  
+    for (i: 0..imageWidth):
+      def r = fl(i) / (imageWidth-1)
+      def g = fl(j) / (imageWidth-1)
+      def b = 0.
+
+      def ir = int(255.999 * r)
+      def ig = int(255.999 * g)
+      def ib = int(255.999 * b)
+
+      println(ir, ig, ib)
+
+module main:
+  main()
