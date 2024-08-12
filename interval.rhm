@@ -1,0 +1,11 @@
+#lang rhombus
+export: Interval empty_interval universe_interval
+
+
+class Interval(min=#inf, max=#neginf):
+  method size ():       max - min
+  method contains(x):   min <= x && x <= max
+  method surrounds(x):  min <  x && x <  max
+
+def empty_interval    = Interval()
+def universe_interval = Interval(#neginf, #inf) 

@@ -1,15 +1,16 @@
 #lang rhombus
 import:
-  "color.rhm" open
-  "vec3.rhm"  open
-  "ray.rhm"   open
+  "color.rhm"    open
+  "vec3.rhm"     open
+  "ray.rhm"      open
+  "interval.rhm" open
 
 export: infinity pi degrees_to_radians fl int log
 export:
   all_from("color.rhm")
   all_from("vec3.rhm")
   all_from("ray.rhm")
-
+  all_from("interval.rhm")
 
 // Constants
 

@@ -8,7 +8,7 @@ class Sphere(center, radius):
   implements hittable
   // TODO: the following line provokes an error in the amalgam layer
   // constructor(c,r): this.center:=c; this.radius := math.max(0,r)
-  override hit(r, ray_tmin, ray_tmax, rec):
+  override hit(r, ray_t, rec):
     def oc = center - r.origin
     def a = r.direction.length_squared()
     def h = r.direction * oc
@@ -20,10 +20,11 @@ class Sphere(center, radius):
               // Find the nearest root that lies in the acceptable range.
               def root1 = (h - sqrtd) / a
               def root2 = (h + sqrtd) / a
-              def root = (cond
-                          | ((ray_tmin <= root1) && (root1 <= ray_tmax)): root1
-                          | ((ray_tmin <= root2) && (root2 <= ray_tmax)): root2
-                          | ~else #false)
+              def root:
+                cond
+                | ray_t.contains(root1) : root1
+                | ray_t.contains(root2) : root2
+                | ~else #false
               cond
               | root:  rec.t := root
                        rec.p := r.at(rec.t)

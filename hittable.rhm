@@ -15,16 +15,16 @@ class HitRecord(mutable p          = Pt(),
     normal := (if front_face | outward_normal | -outward_normal)
   
 interface hittable:  
-  abstract method hit(r, ray_tmin, ray_tmax, rec)
+  abstract method hit(r, ray_t, rec)
 
 
-fun hit(hittables, r, ray_tmin, ray_tmax):
+fun hit(hittables, r, ray_t):
   def          temp_rec       = HitRecord()
   def mutable  hit_anything   = #false
-  def mutable  closest_so_far = ray_tmax
+  def mutable  closest_so_far = ray_t.max
 
   for (object: hittables):
-    def h = object.hit(r, ray_tmin, closest_so_far, temp_rec)
+    def h = object.hit(r, Interval(ray_t.min, closest_so_far), temp_rec)
     when h:
     |  hit_anything   := #true
        closest_so_far := temp_rec.t
