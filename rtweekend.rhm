@@ -6,6 +6,7 @@ import:
   "interval.rhm" open
 
 export: infinity pi degrees_to_radians fl int log
+export: random random_double
 export:
   all_from("color.rhm")
   all_from("vec3.rhm")
@@ -33,3 +34,13 @@ fun int(x):
 // Logging - for showing progress
 fun log(x, ...):
   Port.Output.current_error().println(x, ...)
+
+fun random():
+  // Returns a random real in [0,1).
+  // In Rhombus it's in ]0,1[.
+  math.random()
+
+fun random_double(min,max):
+  // Returns a random real in [0,1).
+  // In Rhombus it's in ]0,1[.
+  min + (max-min)*random()

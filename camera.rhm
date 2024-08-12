@@ -7,9 +7,9 @@ class Camera():
   //-- PUBLIC
 
   // Image
-  field aspect_ratio = 16. / 9.  
-  field image_width  = 400
-
+  field aspect_ratio      = 16. / 9.  // Ratio of image width over height
+  field image_width       = 400       // Rendered image width in pixel count
+  field samples_per_pixel = 100     // Count of random samples for each pixel
   // Render
   method render(world):
     initialize()
@@ -20,25 +20,29 @@ class Camera():
     for (j: 0..image_height):
       log("Scanlines remaining:", image_height - j)  
       for (i: 0..image_width):
-        def pixel_center  = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v)
-        def ray_direction = pixel_center - center
-        def r = Ray(center, ray_direction)
-        def pixel_color = ray_color(r, world)
-        write_color(pixel_color)
+        def pixel_color = Color(0.,0.,0.)
+        for (sample: 0..samples_per_pixel):
+          def r = get_ray(i, j)
+          pixel_color += ray_color(r, world)
+        write_color(pixel_samples_scale * pixel_color)
     log("Done")
 
 
   //-- PRIVATE
 
   // Calculate the image height, and ensure that it's at least 1.
-  def mutable image_height  = #false // Rendered image height
-  def mutable center        = Pt()   // Camera center
-  def mutable pixel00_loc   = Pt()   // Location of pixel (0,0)
-  def mutable pixel_delta_u = 1.     // Offset to pixel to the right
-  def mutable pixel_delta_v = 1.     // Offset to pixel below
+  def mutable pixel_samples_scale = 1 // color scale factor
+  def mutable image_height  = #false  // Rendered image height
+  def mutable center        = Pt()    // Camera center
+  def mutable pixel00_loc   = Pt()    // Location of pixel (0,0)
+  def mutable pixel_delta_u = 1.      // Offset to pixel to the right
+  def mutable pixel_delta_v = 1.      // Offset to pixel below
 
   private method initialize():
     image_height := math.max(1, int(image_width / aspect_ratio))
+
+    pixel_samples_scale :=  1.0 / samples_per_pixel
+
     center       := Pt(0., 0., 0.)
     
     // Determine viewport dimensions
@@ -59,6 +63,22 @@ class Camera():
                    - Vec(0., 0., focal_length) - viewport_u/2 - viewport_v/2
     pixel00_loc := viewport_upper_left
                    + 0.5 * (pixel_delta_u + pixel_delta_v)
+
+  fun get_ray(i, j):
+    // Construct a camera ray originating from the origin and directed
+    // at randomly sampled point around the pixel location (i, j).
+    def offset = sample_square()
+    def pixel_sample = pixel00_loc
+                     + ((i + offset.x) * pixel_delta_u)
+                     + ((j + offset.y) * pixel_delta_v)
+    def ray_origin    = center
+    def ray_direction = pixel_sample - ray_origin    
+    Ray(ray_origin, ray_direction)
+
+  fun sample_square():
+    // Returns the vector to a random point in
+    // the [-.5,-.5]-[+.5,+.5] unit square.
+    Vec(random() - 0.5, random() - 0.5, 0)
 
   // ray_color(r, world)
   //   r     is a Ray

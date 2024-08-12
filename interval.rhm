@@ -6,6 +6,10 @@ class Interval(min=#inf, max=#neginf):
   method size ():       max - min
   method contains(x):   min <= x && x <= max
   method surrounds(x):  min <  x && x <  max
+  method clamp(x):      cond
+                        | x < min : min
+                        | x > max : max
+                        | ~else x
 
 def empty_interval    = Interval()
 def universe_interval = Interval(#neginf, #inf) 
