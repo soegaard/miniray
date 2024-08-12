@@ -1,0 +1,124 @@
+#lang rhombus
+export: Vec3 Vec Pt
+        cross dot
+        + - * /
+        += -= *= /=
+        unit_vector
+import: rhombus: only: + - * /
+
+class Vec3(mutable x = 0, mutable y =0 , mutable z =0):
+  nonfinal
+  private implements MutableIndexable
+  // constructor (x=0, y=0, z=0):  super(x,y,z)
+  method add(w :: Vec3):        Vec3(x+w.x, y+w.y, z+w.z)
+  method add_constant(c):       Vec3(x+c, y+c, z+c)
+  method negate():              Vec3(-x,-y,-z)
+  method subtract(w :: Vec3):   Vec3(x-w.x, y-w.y, z-w.z)
+  method subtract_constant(c):  Vec3(x-c, y-c, z-c)
+  method scale(c):              Vec3(x*c, y*c, z*c)
+  method dot_product(w):        x * w.x  +  y * w.y  +  z * w.z
+  method cross(w):              Vec3(y*w.z - z*w.y,
+                                     z*w.x - x*w.z,
+                                     x*w.y - y*w.x)
+  method add_assign(w):         x:=x+w.x; y:=y+w.y; z:=z+w.z; 
+  method subtract_assign(w):    x:=x-w.x; y:=y-w.y; z:=z-w.z;
+  method scale_assign(c):       x:=c*x; y:=c*y; z:=c*z;
+  method length_squared():      this*this
+  method length():              math.sqrt(length_squared())
+  method unit():                this * (1/this.length())                               
+  method display():             print(x, y, z)                              
+  private override method get(index):
+    cond
+    | index == 0 : x
+    | index == 1 : y
+    | index == 2 : z
+    | ~else error("index out of bounds, expected 0, 1 or 2")
+  private override method set(index, value):
+    cond
+    | index == 0 : x := value
+    | index == 1 : y := value
+    | index == 2 : z := value
+    | ~else error("index out of bounds, expected 0, 1 or 2")
+
+fun unit_vector(v :: Vec3): v.unit()
+
+operator + :
+  ~weaker_than ** * / div mod rem
+  ~same_as -
+| (v :: Vec3) + (w :: Vec3) :  v.add(w)
+| (v :: Vec3) + c           :  v.add_constant(c)
+|  c          + (w :: Vec3) :  w.add_constant(c)
+|  a          + b           :  a rhombus.(+) b
+
+operator - :
+  ~weaker_than ** * / div mod rem
+  ~same_as +
+|             - (w :: Vec3) :  w.negate()
+|             -  w          :  rhombus.(-) w
+| (v :: Vec3) - (w :: Vec3) :  v.subtract(w)
+| (v :: Vec3) -  c          :  v.subtract_constant(c)
+|  c          - (w :: Vec3) :  Vec3(c,c,c) - w
+|  a          -  b          :  a rhombus.(-) b
+
+operator * :
+  ~weaker_than **
+  ~same_as /
+| (v :: Vec3) *  (w :: Vec3) : v.dot_product(w)
+| (v :: Vec3) *  c           : v.scale(c)
+|  c          * (v :: Vec3)  : v.scale(c)
+|  a          *  b           : a rhombus.(*) b
+
+operator / :
+  ~weaker_than **
+  ~same_as *
+| (v :: Vec3) /  c           : v.scale(1/c)
+|  a          /  b           : a rhombus.(/) b
+
+
+operator cross : ~stronger_than + - 
+| (v :: Vec3) cross  (w :: Vec3) : v.cross(w)
+
+operator dot : ~stronger_than + - 
+| (v :: Vec3) dot  (w :: Vec3) : v.dot_product(w)
+
+operator += : ~same_as :=
+| (v :: Vec3) += (w :: Vec3) :  v.add_assign(w)
+operator -= : ~same_as :=
+| (v :: Vec3) -= (w :: Vec3) :  v.subtract_assign(w)
+operator *= : ~same_as :=
+| (v :: Vec3) *= c           :  v.scale_assign(c)
+operator /= : ~same_as :=
+| (v :: Vec3) /= c           :  v.scale_assign(1/c)
+
+
+class Pt():    extends Vec3
+class Vec():   extends Vec3
+
+
+// def o = Vec3()
+// def p = Vec3(11,22,33)
+// def q = Vec3(1,2,3)
+// 
+// [o,p,q]
+// 
+// p+q
+// p+1
+// 1+p
+// 1+2
+// 
+// -p
+// 
+// p-q
+// p-1
+// 100-p
+// 1-2
+// 
+// 2*p
+// p*2
+// p*q
+// 2*3
+// 
+// p.length()
+// p.length_squared()
+
+

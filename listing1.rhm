@@ -22,17 +22,17 @@ fun int(x):
 
 fun main():
   // Image
-  def imageWidth  = 256
-  def imageHeight = 256
+  def image_width  = 256
+  def image_height = 256
 
   // Render
   println("P3")
-  println(imageWidth, imageHeight, 255) // 255 is max color
+  println(image_width, image_height, 255) // 255 is max color
 
-  for (j: 0..imageHeight):
-    for (i: 0..imageWidth):
-      def r = fl(i) / (imageWidth-1)
-      def g = fl(j) / (imageWidth-1)
+  for (j: 0..image_height):
+    for (i: 0..image_width):
+      def r = fl(i) / (image_width-1)
+      def g = fl(j) / (image_width-1)
       def b = 0.
 
       def ir = int(255.999 * r)

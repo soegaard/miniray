@@ -1,0 +1,34 @@
+#lang rhombus
+export: hittable HitRecord hit
+
+import "rtweekend.rhm" open
+
+// p is point, normal a vector and t a number
+class HitRecord(mutable p          = Pt(),
+                mutable normal     = Vec(),
+                mutable t          = 0,
+                mutable front_face = #true):
+  method set_face_normal(r, outward_normal):
+    // Sets the hit record normal vector.
+    // NOTE: the parameter `outward_normal` is assumed to have unit length.
+    front_face := (r.direction * outward_normal) < 0
+    normal := (if front_face | outward_normal | -outward_normal)
+  
+interface hittable:  
+  abstract method hit(r, ray_tmin, ray_tmax, rec)
+
+
+fun hit(hittables, r, ray_tmin, ray_tmax):
+  def          temp_rec       = HitRecord()
+  def mutable  hit_anything   = #false
+  def mutable  closest_so_far = ray_tmax
+
+  for (object: hittables):
+    def h = object.hit(r, ray_tmin, closest_so_far, temp_rec)
+    when h:
+    |  hit_anything   := #true
+       closest_so_far := temp_rec.t
+       
+  if hit_anything
+  | temp_rec
+  | #false

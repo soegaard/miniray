@@ -1,0 +1,25 @@
+#lang rhombus
+import "vec3.rhm"
+export Color write_color
+
+// Listing 5
+// 3.1 Color Utility Functions
+
+class Color():
+  extends vec3.Vec3
+
+// convert a number x to an integer by rounding down
+fun int(x):
+  math.exact(math.floor(x))
+
+fun write_color(pixel):
+  def r = pixel.x
+  def g = pixel.y
+  def b = pixel.z
+  // Translate the [0,1] component values to the byte range [0,255].
+  def rbyte = int(255.999 * r);
+  def gbyte = int(255.999 * g);
+  def bbyte = int(255.999 * b);
+  // Write out the pixel color components.
+  println(rbyte, gbyte, bbyte)
+  

@@ -1,0 +1,41 @@
+#lang rhombus
+export: Sphere
+
+import "hittable.rhm" open
+import "rtweekend.rhm" open
+
+class Sphere(center, radius):
+  implements hittable
+  // TODO: the following line provokes an error in the amalgam layer
+  // constructor(c,r): this.center:=c; this.radius := math.max(0,r)
+  override hit(r, ray_tmin, ray_tmax, rec):
+    def oc = center - r.origin
+    def a = r.direction.length_squared()
+    def h = r.direction * oc
+    def c = oc.length_squared() - radius*radius
+    def discriminant = h*h - a*c
+    cond
+    | discriminant < 0 : #false
+    | ~else : def sqrtd = math.sqrt(discriminant)
+              // Find the nearest root that lies in the acceptable range.
+              def root1 = (h - sqrtd) / a
+              def root2 = (h + sqrtd) / a
+              def root = (cond
+                          | ((ray_tmin <= root1) && (root1 <= ray_tmax)): root1
+                          | ((ray_tmin <= root2) && (root2 <= ray_tmax)): root2
+                          | ~else #false)
+              cond
+              | root:  rec.t := root
+                       rec.p := r.at(rec.t)
+                       def outward_normal = (rec.p - center) / radius
+                       rec.set_face_normal(r, outward_normal)
+                       #true
+              | ~else  #false
+
+
+
+
+
+
+
+
