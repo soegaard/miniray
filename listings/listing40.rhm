@@ -1,0 +1,32 @@
+#lang rhombus
+import "camera.rhm"    open
+import "hittable.rhm"  open
+import "rtweekend.rhm" open
+import "sphere.rhm"    open
+
+// Run the program:
+//    racket listing40.rhm > listing40.ppm
+
+// Listing 40
+//   https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+// Internally colors are represented by a triple of
+// floating points between 0.0 and 1.0.
+
+// Main
+  
+fun main():
+  // World
+  def world = [Sphere(Pt(0,   0,  -1),   0.5),
+               Sphere(Pt(0,-100.5,-1), 100)]
+  // Camera
+  def cam = Camera()
+  cam.aspect_ratio := 16. / 9.
+  cam.image_width  := 10
+  
+  // Render
+  cam.render(world)
+
+      
+module main:
+  main()

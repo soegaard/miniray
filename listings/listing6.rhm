@@ -1,0 +1,45 @@
+#lang rhombus
+import "color.rhm"
+def Color = color.Color
+
+// Run this program:
+//    racket listing6.rhm > listing6.ppm
+
+// Listing 6
+//   https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+  
+// convert a number x to a floating point number
+fun fl(x):
+  1. * x
+
+// convert a number x to an integer by rounding down
+fun int(x):
+  math.exact(math.floor(x))
+
+
+// Internally colors are represented by a triple of
+// floating points between 0.0 and 1.0.
+
+fun log(x, ...):
+  Port.Output.current_error().println(x, ...)
+
+fun main():
+  // Image
+  def image_width  = 255
+  def image_height = 255
+
+  // Render
+  println("P3")
+  println(image_width, image_height, 255) // 255 is max color
+
+  for (j: 0..image_height):
+    log("Scanlines remaining:", image_height - j)  
+    for (i: 0..image_width):
+      def pixel = Color(fl(i) / (image_width-1),
+                        fl(j) / (image_width-1),
+                        0.)
+      color.write_color(pixel)
+      
+module main:
+  main()

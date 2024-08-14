@@ -1,0 +1,72 @@
+#lang rhombus
+import "rtweekend.rhm" open
+import "hittable.rhm"  open
+import "sphere.rhm"    open
+
+// Run this program:
+//    racket listing30.rhm > listing30.ppm
+
+// Listing 30
+//   https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+// Internally colors are represented by a triple of
+// floating points between 0.0 and 1.0.
+
+// Main
+
+// ray_color(r, world)
+//   r     is a Ray
+//   world is a list of Hittable
+fun ray_color(r, world):
+  def rec = hit(world, r, 0., infinity)
+  cond
+  | rec: 0.5 * (rec.normal + Color(1,1,1))
+  | ~else:
+      def unit_direction = r.direction.unit()
+      def a = 0.5*(unit_direction.y + 1.0)
+      (1.0-a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0)
+  
+fun main():
+  // Image
+  def aspect_ratio = 16. / 9.  
+  def image_width  = 400
+  // Calculate the image height, and ensure that it's at least 1.
+  def mutable image_height = math.max(1, int(image_width / aspect_ratio))
+  // World
+  def world = [Sphere(Pt(0,   0,  -1),   0.5),
+               Sphere(Pt(0,-100.5,-1), 100)]
+  // Camera
+  def focal_length    = 1.0
+  def viewport_height = 2.0
+  def viewport_width  = viewport_height * image_width / image_height
+  def camera_center   = Pt(0, 0, 0)
+  // Calculate the vectors across the horizontal and down the vertical viewport edges.
+  def viewport_u = Vec(viewport_width, 0, 0)
+  def viewport_v = Vec(0, -viewport_height, 0)
+  // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+  def pixel_delta_u = viewport_u / image_width
+  def pixel_delta_v = viewport_v / image_height
+  // Calculate the location of the upper left pixel.
+  def viewport_upper_left = camera_center
+                      - Vec(0, 0, focal_length) - viewport_u/2 - viewport_v/2
+  def pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v)
+  
+  // Render
+  println("P3")
+  println(image_width, image_height, 255) // 255 is max color
+
+  for (j: 0..image_height):
+    log("Scanlines remaining:", image_height - j)  
+    for (i: 0..image_width):
+      def pixel_center  = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v)
+      def ray_direction = pixel_center - camera_center
+      def r = Ray(camera_center, ray_direction)
+      def pixel_color = ray_color(r, world)
+      write_color(pixel_color)
+      
+module main:
+  main()
+
+
+def world = [Sphere(Pt(0,-100.5,-1), 100),
+             Sphere(Pt(0,   0,  -1),     0.5)]
