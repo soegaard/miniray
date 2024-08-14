@@ -4,14 +4,14 @@ export: Sphere
 import "hittable.rhm" open
 import "rtweekend.rhm" open
 
-class Sphere(center, radius):
+class Sphere(center, radius, mat):
   implements hittable
   // TODO: the following line provokes an error in the amalgam layer
   // constructor(c,r): this.center:=c; this.radius := math.max(0,r)
   override hit(r, ray_t, rec):
     def oc = center - r.origin
     def a = r.direction.length_squared()
-    def h = r.direction * oc
+    def h = r.direction dot oc
     def c = oc.length_squared() - radius*radius
     def discriminant = h*h - a*c
     cond
@@ -30,6 +30,7 @@ class Sphere(center, radius):
                        rec.p := r.at(rec.t)
                        def outward_normal = (rec.p - center) / radius
                        rec.set_face_normal(r, outward_normal)
+                       rec.mat := mat
                        #true
               | ~else  #false
 

@@ -4,14 +4,17 @@ import:
   "vec3.rhm"     open
   "ray.rhm"      open
   "interval.rhm" open
+  "clamped-real.rhm" open
+
 
 export: infinity pi degrees_to_radians fl int log
-export: random random_double
+export: random random_double clamp clamp01
 export:
   all_from("color.rhm")
   all_from("vec3.rhm")
   all_from("ray.rhm")
   all_from("interval.rhm")
+  all_from("clamped-real.rhm")
 
 // Constants
 
@@ -44,3 +47,9 @@ fun random_double(min,max):
   // Returns a random real in [0,1).
   // In Rhombus it's in ]0,1[.
   min + (max-min)*random()
+
+fun clamp(x,from,to):
+  math.max(from, math.min(to,x))
+
+fun clamp01(x):
+  clamp(x, 0., 1.)

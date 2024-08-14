@@ -1,0 +1,6 @@
+#lang rhombus/static/and_meta
+export: ClampedReal
+
+annot.macro 'ClampedReal($lowest, $hightest)':
+  'converting(fun (x :: Real):
+                math.max($lowest, math.min($hightest, x)))'

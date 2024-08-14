@@ -1,0 +1,53 @@
+#lang rhombus
+export: Material
+        Lambertian Metal Dielectric
+
+import: "rtweekend.rhm" open
+
+class Material():
+  nonfinal
+  // Public
+  method scatter(ray_in, rec, attenuation_box, scattered_box):
+    #false
+
+// Matte
+class Lambertian(albedo :: Color):
+  extends Material
+
+  override scatter(ray_in, rec, attenuation_box, scattered_box):
+    def mutable scatter_direction = rec.normal + random_unit_vector()
+    // Catch degenerate scatter direction
+    when scatter_direction.near_zero()
+    |  scatter_direction := rec.normal      
+    scattered_box.value   := Ray(rec.p, scatter_direction)
+    attenuation_box.value := albedo
+    #true
+
+// Reflective
+class Metal(albedo = Color(1.,1.,1.),
+            fuzz   :: ClampedReal(0., 1.0) = 0.0):
+  extends Material
+  
+  override scatter(ray_in, rec, attenuation_box, scattered_box):
+    def reflected =   reflect(ray_in.direction, rec.normal)
+                    + fuzz * random_unit_vector()
+    scattered_box.value   := Ray(rec.p, reflected)
+    attenuation_box.value := albedo
+    (scattered_box.value.direction dot rec.normal) > 0
+
+
+// Refractive
+class Dielectric(refraction_index):
+  extends Material
+  // Refractive index in vacuum or air, or the ratio of the material's
+  // refractive index over the refractive index of the enclosing media
+  
+  override scatter(ray_in, rec, attenuation_box, scattered_box):
+    attenuation_box.value := Color(1., 1., 1.)
+    def ri = (if rec.front_face | 1./refraction_index | refraction_index)
+    def unit_direction = ray_in.direction.unit()
+    def refracted = refract(unit_direction, rec.normal, ri)
+    scattered_box.value   := Ray(rec.p, refracted)
+    #true
+
+

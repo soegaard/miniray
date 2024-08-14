@@ -2,16 +2,18 @@
 export: hittable HitRecord hit
 
 import "rtweekend.rhm" open
+import "material.rhm"  open
 
 // p is point, normal a vector and t a number
 class HitRecord(mutable p          = Pt(),
                 mutable normal     = Vec(),
+                mutable mat        = Material(),
                 mutable t          = 0,
                 mutable front_face = #true):
   method set_face_normal(r, outward_normal):
     // Sets the hit record normal vector.
     // NOTE: the parameter `outward_normal` is assumed to have unit length.
-    front_face := (r.direction * outward_normal) < 0
+    front_face := (r.direction dot outward_normal) < 0
     normal := (if front_face | outward_normal | -outward_normal)
   
 interface hittable:  

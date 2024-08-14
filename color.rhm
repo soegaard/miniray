@@ -13,10 +13,20 @@ class Color():
 fun int(x):
   math.exact(math.floor(x))
 
+// conversion from linear color space
+fun linear_to_gamma(linear_component):
+  if linear_component > 0
+  | math.sqrt(linear_component)
+  | 0
+
 fun write_color(pixel):
-  def r = pixel.x
-  def g = pixel.y
-  def b = pixel.z
+  def mutable r = pixel.x
+  def mutable g = pixel.y
+  def mutable b = pixel.z
+  // Apply a linear to gamma transform for gamma 2
+  r := linear_to_gamma(r)
+  g := linear_to_gamma(g)
+  b := linear_to_gamma(b)
   // Translate the [0,1] component values to the byte range [0,255].
   def intensity = Interval(0.000, 0.999)
   def rbyte = int(256 * intensity.clamp(r))
