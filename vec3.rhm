@@ -4,7 +4,9 @@ export: Vec3 Vec Pt
         + - * /
         += -= *= /=
         unit_vector
-        random_unit_vector random_on_hemisphere
+        random_unit_vector
+        random_on_hemisphere
+        random_in_unit_disk
         reflect refract
 
 import: rhombus: only: + - * /
@@ -81,6 +83,12 @@ fun random_on_hemisphere(normal):
   if (on_unit_sphere dot normal) > 0.0
   |  on_unit_sphere
   | -on_unit_sphere
+
+fun random_in_unit_disk():
+  def p = Vec(random2(-1., 1.), random2(-1., 1.), 0.0)
+  if p.length_squared() < 1
+  | p
+  | random_in_unit_disk()  
 
 fun reflect(v, n):
   // n is a unit vector

@@ -37,17 +37,33 @@ class Metal(albedo = Color(1.,1.,1.),
 
 
 // Refractive
+//   Dielectric material with reflection
+//   Used for glass, air bubbles etc.
 class Dielectric(refraction_index):
   extends Material
   // Refractive index in vacuum or air, or the ratio of the material's
   // refractive index over the refractive index of the enclosing media
   
   override scatter(ray_in, rec, attenuation_box, scattered_box):
+    // Attenuation is always 1 -- the glass surface absorbs nothing
     attenuation_box.value := Color(1., 1., 1.)
+    
     def ri = (if rec.front_face | 1./refraction_index | refraction_index)
     def unit_direction = ray_in.direction.unit()
-    def refracted = refract(unit_direction, rec.normal, ri)
-    scattered_box.value   := Ray(rec.p, refracted)
+    def cos_theta = math.min( -unit_direction dot rec.normal, 1.)
+    def sin_theta = math.sqrt(1.0 - cos_theta * cos_theta)
+    def cannot_refract = ri * sin_theta > 1.
+    def direction = (if cannot_refract
+                       || reflectance(cos_theta, ri) > random():
+                     | reflect(unit_direction, rec.normal)
+                     | refract(unit_direction, rec.normal, ri))
+    scattered_box.value   := Ray(rec.p, direction)
     #true
+
+  fun reflectance(cosine, refraction_index):
+    // Use Schlick's approximation for reflectance.
+    def r0 = (1 - refraction_index) / (1 + refraction_index)
+    def r  = r0*r0
+    r + (1-r)*math.expt(1-cosine, 5)
 
 

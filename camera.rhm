@@ -17,6 +17,13 @@ class Camera():
   field image_width       = 400       // Rendered image width in pixel count
   field samples_per_pixel = 100     // Count of random samples for each pixel
   field max_depth         = 10    // Maximum number of ray bounces into scene
+  field vfov              = 10   // Vertical view angle (field of view) degrees
+  field look_from         = Pt(0,0, 0) // Point camera is looking from
+  field look_at           = Pt(0,0,-1) // Point camera is looking at
+  field vup               = Vec(0,1,0) // Camera-relative "up" direction
+  field defocus_angle     = 0. // Variation angle of rays through each pixel
+  field focus_dist        =10. // Distance from camera lookfrom point to plane
+                               // of perfect focus
 
   // Render
   method render(world):
@@ -45,41 +52,59 @@ class Camera():
   def mutable pixel00_loc   = Pt()    // Location of pixel (0,0)
   def mutable pixel_delta_u = 1.      // Offset to pixel to the right
   def mutable pixel_delta_v = 1.      // Offset to pixel below
-
+  def mutable u=Vec()                 // Camera frame basis vectors
+  def mutable v=Vec()
+  def mutable w=Vec()
+  def mutable defocus_disk_u = 0.     // Defocus disk horizontal radius
+  def mutable defocus_disk_v = 0.     // Defocus disk vertical radius
+  
   private method initialize():
     image_height := math.max(1, int(image_width / aspect_ratio))
     
     pixel_samples_scale :=  1.0 / samples_per_pixel
     
-    center := Pt(0., 0., 0.)
+    center := look_from
     
     // Determine viewport dimensions
-    def focal_length    = 1.0
-    def viewport_height = 2.0
+    def theta           = degrees_to_radians(vfov)
+    def h               = math.tan(theta/2.)
+    def viewport_height = 2.0 * h * focus_dist
     def viewport_width  = viewport_height * image_width / image_height
+
+    // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+    def w = unit_vector(look_from - look_at)
+    def u = unit_vector(vup cross w)
+    def v = w cross u
     
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    def viewport_u = Vec(viewport_width, 0., 0.)
-    def viewport_v = Vec(0., -viewport_height, 0.)
+    def viewport_u = viewport_width  *   u  // hor edge
+    def viewport_v = viewport_height * (-v) // ver edge
     
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     pixel_delta_u := viewport_u / image_width
     pixel_delta_v := viewport_v / image_height
     
     // Calculate the location of the upper left pixel.
-    def viewport_upper_left = center
-                   - Vec(0., 0., focal_length) - viewport_u/2 - viewport_v/2
+    def viewport_upper_left =   center
+                              - focus_dist * w - viewport_u/2 - viewport_v/2
     pixel00_loc := viewport_upper_left
                    + 0.5 * (pixel_delta_u + pixel_delta_v)
 
-  fun get_ray(i, j):
-    // Construct a camera ray originating from the origin and directed
-    // at randomly sampled point around the pixel location (i, j).
+    // Calculate the camera defocus disk basis vectors.
+    def defocus_radius =   focus_dist
+                         * math.tan(degrees_to_radians(defocus_angle / 2))
+    defocus_disk_u := u * defocus_radius
+    defocus_disk_v := v * defocus_radius
+
+  method get_ray(i, j):
+    // Construct a camera ray originating from the defocus disk and directed
+    // at a randomly sampled point around the pixel location i, j.
     def offset = sample_square()
     def pixel_sample = pixel00_loc
                      + ((i + offset.x) * pixel_delta_u)
                      + ((j + offset.y) * pixel_delta_v)
-    def ray_origin    = center
+    def ray_origin    = (if defocus_angle <= 0:
+                         | center | defocus_disk_sample())
     def ray_direction = pixel_sample - ray_origin    
     Ray(ray_origin, ray_direction)
 
@@ -87,6 +112,12 @@ class Camera():
     // Returns the vector to a random point in
     // the [-.5,-.5]-[+.5,+.5] unit square.
     Vec(random() - 0.5, random() - 0.5, 0)
+
+  fun defocus_disk_sample():
+    // Returns a random point in the camera defocus disk.
+    def p = random_in_unit_disk()
+    center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v)
+
 
   // ray_color(r, world)
   //   r     is a Ray

@@ -1,0 +1,98 @@
+#lang rhombus
+import "camera.rhm"    open
+import "hittable.rhm"  open
+import "material.rhm"  open
+import "rtweekend.rhm" open
+import "sphere.rhm"    open
+
+// Run the program:
+//    racket main.rhm > main.ppm
+
+//   https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+fun world1():
+  // Materials
+  def material_ground = Lambertian(Color(0.8, 0.8, 0.0))
+  def material_center = Lambertian(Color(0.1, 0.2, 0.5))
+  def material_left   = Dielectric(1.50)          // glass
+  def material_bubble = Dielectric(1.00 / 1.50)   // air
+  def material_right  =      Metal(Color(0.8, 0.6, 0.2), 1.0)  
+  // World
+  [Sphere(Pt( 0.0, -100.5, -1.0), 100.0, material_ground),
+   Sphere(Pt( 0.0,    0.0, -1.2),   0.5, material_center),
+   Sphere(Pt(-1.0,    0.0, -1.0),   0.5, material_left),
+   Sphere(Pt(-1.0,    0.0, -1.0),   0.4, material_bubble),
+   Sphere(Pt( 1.0,    0.0, -1.0),   0.5, material_right)]
+  
+fun world2():
+  def R = math.cos(pi/4.)
+  // Materials
+  def material_left  = Lambertian(Color(0., 0., 1.))
+  def material_right = Lambertian(Color(1., 0., 0.))
+  // World
+  [Sphere(Pt( -R, 0.0, -1.0), R, material_left),
+   Sphere(Pt(  R, 0.0, -1.0), R, material_right)]
+
+fun world3():
+  // Materials
+  def material_ground = Lambertian(Color(0.5, 0.5, 0.5))
+  def material1       = Dielectric(1.50)          // glass
+  def material2       = Lambertian(Color(0.4, 0.2, 0.1))
+  def material3       = Metal(Color(0.7, 0.6, 0.5), 0.0)
+  
+  // World
+  def ground = Sphere(Pt( 0.0, -1000., 0.), 1000, material_ground)
+  def large = [Sphere(Pt( 0.0, 1.0, 0.0), 1.0, material1),
+               Sphere(Pt(-4.0, 1.0, 0.0), 1.0, material2),
+               Sphere(Pt( 4.0, 1.0, 0.0), 1.0, material3)]
+  def mutable world = large.add(ground)
+
+  def N = 4
+  for (a: (-N)..N):
+    for (b: (-N)..N):
+      def choose_mat = random()
+      def center = Pt(a + 0.9*random(),  0.2,  b + 0.9*random())
+      when (center - Pt(4, 0.2, 0)).length() > 0.9
+      | cond
+        | choose_mat < 0.8:
+            // diffuse
+            def albedo = Color(random_color() * random_color())
+            def sphere_material = Lambertian(albedo)
+            world := world.add(Sphere(center, 0.2, sphere_material))
+        | choose_mat < 0.95 :
+            // metal
+            def albedo = random_color2(0.5, 1)
+            def fuzz = random_double(0, 0.5)
+            def sphere_material = Metal(albedo, fuzz)
+            world := world.add(Sphere(center, 0.2, sphere_material))
+        | ~else:    
+             // glass
+            def sphere_material = Dielectric(1.5)
+            world := world.add(Sphere(center, 0.2, sphere_material))
+  world
+
+  
+
+fun main():
+  // World
+  def world = world3()
+  // Camera
+  def cam = Camera()  
+
+  cam.aspect_ratio      := 16. / 9.
+  cam.image_width       := 400
+  cam.samples_per_pixel := 100
+  cam.max_depth         := 50
+  
+  cam.vfov              := 20
+  cam.look_from         := Pt(13.,  2.,  3.)
+  cam.look_at           := Pt( 0.,  0,   0.)
+  cam.vup               := Vec(0., 1., 0.)
+  cam.defocus_angle     := 0.6
+  cam.focus_dist        := 10.
+  // Render
+  cam.render(world)
+
+      
+module main:
+  main()

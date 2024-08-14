@@ -1,5 +1,5 @@
 #lang rhombus
-export Color write_color
+export Color write_color random_color random_color2
 import "interval.rhm" open
 import "vec3.rhm"     open
 
@@ -8,6 +8,9 @@ import "vec3.rhm"     open
 
 class Color():
   extends Vec3
+  constructor
+  | (x, y, z)   : super(x,y,z)()
+  | (v :: Vec3) : super(v.x, v.y, v.z)()
 
 // convert a number x to an integer by rounding down
 fun int(x):
@@ -35,3 +38,11 @@ fun write_color(pixel):
   // Write out the pixel color components.
   println(rbyte, gbyte, bbyte)
   
+fun random_color():
+  Color(math.random(), math.random(), math.random())
+
+fun random2(min, max):
+  min + (max - min)*math.random()
+
+fun random_color2(min, max):
+  Color(random2(min, max), random2(min, max), random2(min, max))
