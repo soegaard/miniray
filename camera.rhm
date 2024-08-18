@@ -1,4 +1,4 @@
-#lang rhombus
+#lang rhombus/static
 export: Camera        
 import: "hittable.rhm"  open
 import: "material.rhm"  open
@@ -108,7 +108,7 @@ class Camera():
     def ray_direction = pixel_sample ⊖ ray_origin    
     Ray(ray_origin, ray_direction)
 
-  fun sample_square():
+  fun sample_square():~Vec3:
     // Returns the vector to a random point in
     // the [-.5,-.5]-[+.5,+.5] unit square.
     Vec(random() - 0.5, random() - 0.5, 0)
@@ -122,16 +122,16 @@ class Camera():
   // ray_color(r, world)
   //   r     is a Ray
   //   world is a list of Hittable
-  fun ray_color(r, depth, world):    
+  fun ray_color(r::Ray, depth::Number, world::List.of(hittable)):
     def rec = hit(world, r, Interval(0.001, infinity))
     cond
     // If we've exceeded the ray bounce limit, no more light is gathered.
     | depth <= 0 :
         Color(0,0,0)
-    | rec:
+    | rec:       
         def scattered_box   = Box(#false)
         def attenuation_box = Box(#false)
-        def ok = rec.mat.scatter(r, rec, attenuation_box, scattered_box)
+        def ok = (rec:~HitRecord).mat.scatter(r, rec, attenuation_box, scattered_box)
         def scattered   = scattered_box.value   // a ray
         def attenuation = attenuation_box.value // a color
         if ok

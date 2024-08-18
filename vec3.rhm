@@ -1,4 +1,4 @@
-#lang rhombus
+#lang rhombus/static
 export: Vec3 Vec Pt
         cross dot
         ⊕ ⊖ ⊗ ⊘
@@ -15,80 +15,81 @@ class Vec3(mutable x=0., mutable y=0. , mutable z=0.):
   nonfinal
   private implements MutableIndexable
   // constructor (x=0, y=0, z=0):  super(x,y,z)
-  method add(w :: Vec3):        Vec3(x+w.x, y+w.y, z+w.z)
-  method add_constant(c):       Vec3(x+c, y+c, z+c)
-  method negate():              Vec3(-x,-y,-z)
-  method subtract(w :: Vec3):   Vec3(x-w.x, y-w.y, z-w.z)
-  method subtract_constant(c):  Vec3(x-c, y-c, z-c)
-  method scale(c):              Vec3(x*c, y*c, z*c)
-  method element_product(w):    Vec3(x*w.x, y*w.y, z*w.z)
-  method dot_product(w):        x * w.x  +  y * w.y  +  z * w.z
-  method cross(w):              Vec3(y*w.z - z*w.y,
-                                     z*w.x - x*w.z,
-                                     x*w.y - y*w.x)
-  method add_assign(w):         x:=x+w.x; y:=y+w.y; z:=z+w.z; 
-  method subtract_assign(w):    x:=x-w.x; y:=y-w.y; z:=z-w.z;
-  method scale_assign(c):       x:=c*x; y:=c*y; z:=c*z;
-  method length_squared():      this dot this
-  method length():              math.sqrt(length_squared())
+  method add(w :: Vec3):            Vec3(x+w.x, y+w.y, z+w.z)
+  method add_constant(c):           Vec3(x+c, y+c, z+c)
+  method negate():                  Vec3(-x,-y,-z)
+  method subtract(w :: Vec3):       Vec3(x-w.x, y-w.y, z-w.z)
+  method subtract_constant(c):      Vec3(x-c, y-c, z-c)
+  method scale(c):                  Vec3(x*c, y*c, z*c)
+  method element_product(w::Vec3):  Vec3(x*w.x, y*w.y, z*w.z)
+  method dot_product(w::Vec3):      x * w.x  +  y * w.y  +  z * w.z
+  method cross(w::Vec3):            Vec3(y*w.z - z*w.y,
+                                         z*w.x - x*w.z,
+                                         x*w.y - y*w.x)
+  method add_assign(w::Vec3):       x:=x+w.x; y:=y+w.y; z:=z+w.z; 
+  method subtract_assign(w::Vec3):  x:=x-w.x; y:=y-w.y; z:=z-w.z;
+  method scale_assign(c):           x:=c*x; y:=c*y; z:=c*z;
+  method length_squared():          this dot this
+  method length():                  math.sqrt(length_squared())
   method near_zero():
     def s=1e-8
     (math.abs(x) < s) && (math.abs(y) < s) && (math.abs(z) < s)
-  method unit():                this ⊘ this.length()
-  method random():              Vec3(random(), random(), random())
-  method random2(min,max):      Vec3(random2(min,max),
-                                     random2(min,max),
-                                     random2(min,max))                    
+  method unit()           :~ Vec3:   this ⊘ this.length()
+  method random()         :~ Vec3:   Vec3(random(), random(), random())
+  method random2(min,max) :~ Vec3:   Vec3(random2(min,max),
+                                          random2(min,max),
+                                          random2(min,max))                    
   method display():             print(x, y, z)
-  private override method get(index):
+  private override method get(index) :~ Number :
     cond
     | index == 0 : x
     | index == 1 : y
     | index == 2 : z
     | ~else error("index out of bounds, expected 0, 1 or 2")
-  private override method set(index, value):
+  private override method set(index, value) :~ Void :
     cond
     | index == 0 : x := value
     | index == 1 : y := value
     | index == 2 : z := value
     | ~else error("index out of bounds, expected 0, 1 or 2")
 
-fun unit_vector(v :: Vec3): v.unit()
+fun unit_vector(v :: Vec3) :~ Vec3 :
+  v.unit()
 
-fun random_vector():
+fun random_vector() :~ Vec3 :
   Vec3(random(), random(), random())
   
-fun random2_vector(min,max):
+fun random2_vector(min,max) :~ Vec3 :
   Vec3(random2(min,max), random2(min,max), random2(min,max))
 
 
-fun random_in_unit_sphere():
+fun random_in_unit_sphere() :~ Vec3 :
   def p = random2_vector(-1.,1.)
   if p.length_squared() < 1
   | p
   | random_in_unit_sphere()
 
 
-fun random_unit_vector():
+fun random_unit_vector() :~ Vec3:
   random_in_unit_sphere().unit()
 
-fun random_on_hemisphere(normal):
+fun random_on_hemisphere(normal) :~ Vec3 :
   def on_unit_sphere = random_unit_vector()
   if (on_unit_sphere dot normal) > 0.0
   |  on_unit_sphere
   | -on_unit_sphere
 
-fun random_in_unit_disk():
+fun random_in_unit_disk() :~ Vec3 :
   def p = Vec(random2(-1., 1.), random2(-1., 1.), 0.0)
   if p.length_squared() < 1
   | p
   | random_in_unit_disk()  
 
-fun reflect(v, n):
+fun reflect(v, n) :~ Vec3 :
   // n is a unit vector
   v ⊖ (2 * (v dot n)) ⊗ n
 
-fun refract(uv, n, eta_i_over_eta_t):
+fun refract(uv, n, eta_i_over_eta_t) :~ Vec3 :
   def cos_theta        = math.min( ⊖uv dot n, 1.0)
   def ray_out_perp     = eta_i_over_eta_t ⊗ (uv ⊕ cos_theta ⊗ n)
   def parallel_factor  = - math.sqrt(math.abs(1. - ray_out_perp.length_squared()))
@@ -96,7 +97,7 @@ fun refract(uv, n, eta_i_over_eta_t):
   ray_out_perp ⊕ ray_out_parallel
 
 
-operator ⊕ :
+operator ⊕ :~ Vec3 :
   ~stronger_than < > <= >= ==
   ~weaker_than ⊗ ⊘ 
   ~same_as ⊖
@@ -105,7 +106,7 @@ operator ⊕ :
 |  c          ⊕ (w :: Vec3) :  w.add_constant(c)
 |  a          ⊕ b           :  a + b
 
-operator ⊖ :
+operator ⊖ :~ Vec3 :
   ~stronger_than < > <= >= ==
   ~weaker_than ⊗ ⊘
   ~same_as ⊕
@@ -116,7 +117,7 @@ operator ⊖ :
 |  c          ⊖ (w :: Vec3) :  Vec3(c,c,c) - w
 |  a          ⊖  b          :  a - b
 
-operator ⊗ :
+operator ⊗ :~ Vec3 :
   ~stronger_than < > <= >= ==
   ~same_as ⊘
 | (v :: Vec3) ⊗  (w :: Vec3) : v.element_product(w)
@@ -124,17 +125,17 @@ operator ⊗ :
 |  c          ⊗ (v :: Vec3)  : v.scale(c)
 |  a          ⊗  b           : a * b
 
-operator ⊘ :
+operator ⊘ :~ Vec3 :
   ~stronger_than < > <= >= ==
   ~same_as ⊗
 | (v :: Vec3) ⊘  c           : v.scale(1/c)
 |  a          ⊘  b           : a / b
 
 
-operator cross : ~stronger_than ⊕ ⊖ 
+operator cross :~ Vec3 : ~stronger_than ⊕ ⊖ 
 | (v :: Vec3) cross  (w :: Vec3) : v.cross(w)
 
-operator dot : ~stronger_than ⊕ ⊖ 
+operator dot :~ Number : ~stronger_than ⊕ ⊖ 
 | (v :: Vec3) dot  (w :: Vec3) : v.dot_product(w)
 
 operator += : ~same_as :=

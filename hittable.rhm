@@ -1,16 +1,16 @@
-#lang rhombus
+#lang rhombus/static
 export: hittable HitRecord hit
 
 import "rtweekend.rhm" open
 import "material.rhm"  open
 
 // p is point, normal a vector and t a number
-class HitRecord(mutable p          = Pt(),
-                mutable normal     = Vec(),
-                mutable mat        = Material(),
-                mutable t          = 0,
-                mutable front_face = #true):
-  method set_face_normal(r, outward_normal):
+class HitRecord(mutable p          :: Pt       = Pt(),
+                mutable normal     :: Vec      = Vec(),
+                mutable mat        :: Material = Material(),
+                mutable t          :: Number   = 0,
+                mutable front_face :: Boolean  = #true):
+  method set_face_normal(r :: Ray, outward_normal :: Vec3):
     // Sets the hit record normal vector.
     // NOTE: the parameter `outward_normal` is assumed to have unit length.
     front_face := (r.direction dot outward_normal) < 0
@@ -20,7 +20,8 @@ interface hittable:
   abstract method hit(r, ray_t, rec)
 
 
-fun hit(hittables, r, ray_t):
+
+fun hit(hittables::List.of(hittable), r::Ray, ray_t::Interval) :~ maybe(HitRecord) :
   def          temp_rec       = HitRecord()
   def mutable  hit_anything   = #false
   def mutable  closest_so_far = ray_t.max

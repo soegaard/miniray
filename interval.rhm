@@ -1,15 +1,16 @@
-#lang rhombus
+#lang rhombus/static
 export: Interval empty_interval universe_interval
 
 
-class Interval(min=#inf, max=#neginf):
-  method size ():       max - min
-  method contains(x):   min <= x && x <= max
-  method surrounds(x):  min <  x && x <  max
-  method clamp(x):      cond
-                        | x < min : min
-                        | x > max : max
-                        | ~else x
-
+class Interval(min::Number=#inf, max::Number=#neginf):
+  method size ()      :~Number :       max - min
+  method contains(x)  :~Boolean:  min <= x && x <= max
+  method surrounds(x) :~Boolean: min <  x && x <  max
+  method clamp(x)     :~Number:
+    cond
+    | x < min : min
+    | x > max : max
+    | ~else x
+                              
 def empty_interval    = Interval()
 def universe_interval = Interval(#neginf, #inf) 

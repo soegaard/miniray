@@ -1,7 +1,8 @@
-#lang rhombus
+#lang rhombus/static
 export Ray
 
 import "vec3.rhm": open
 
-class Ray(origin, direction):
-  method at(t): origin ⊕ t⊗direction
+class Ray(origin::Vec3, direction::Vec3):
+  method at(t):~Ray:
+    origin ⊕ t⊗direction
