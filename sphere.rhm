@@ -9,7 +9,7 @@ class Sphere(center, radius, mat):
   // TODO: the following line provokes an error in the amalgam layer
   // constructor(c,r): this.center:=c; this.radius := math.max(0,r)
   override hit(r, ray_t, rec):
-    def oc = center - r.origin
+    def oc = center ⊖ r.origin
     def a = r.direction.length_squared()
     def h = r.direction dot oc
     def c = oc.length_squared() - radius*radius
@@ -28,7 +28,7 @@ class Sphere(center, radius, mat):
               cond
               | root:  rec.t := root
                        rec.p := r.at(rec.t)
-                       def outward_normal = (rec.p - center) / radius
+                       def outward_normal = (rec.p ⊖ center) ⊘ radius
                        rec.set_face_normal(r, outward_normal)
                        rec.mat := mat
                        #true

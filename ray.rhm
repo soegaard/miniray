@@ -4,4 +4,4 @@ export Ray
 import "vec3.rhm": open
 
 class Ray(origin, direction):
-  method at(t): origin + t * direction
+  method at(t): origin ⊕ t⊗direction

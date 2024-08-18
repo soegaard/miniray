@@ -34,7 +34,7 @@ class Vec3(mutable x=0., mutable y=0. , mutable z=0.):
   method near_zero():
     def s=1e-8
     (math.abs(x) < s) && (math.abs(y) < s) && (math.abs(z) < s)
-  method unit():                this * (1/this.length())
+  method unit():                this ⊘ this.length()
   method random():              Vec3(random(), random(), random())
   method random2(min,max):      Vec3(random2(min,max),
                                      random2(min,max),
@@ -86,14 +86,14 @@ fun random_in_unit_disk():
 
 fun reflect(v, n):
   // n is a unit vector
-  v - (2 * (v dot n)) * n
+  v ⊖ (2 * (v dot n)) ⊗ n
 
 fun refract(uv, n, eta_i_over_eta_t):
   def cos_theta        = math.min( ⊖uv dot n, 1.0)
-  def ray_out_perp     = eta_i_over_eta_t * (uv + (cos_theta * n))
-  def ray_out_parallel =
-    - math.sqrt(math.abs(1. - ray_out_perp.length_squared())) * n
-  ray_out_perp + ray_out_parallel
+  def ray_out_perp     = eta_i_over_eta_t ⊗ (uv ⊕ cos_theta ⊗ n)
+  def parallel_factor  = - math.sqrt(math.abs(1. - ray_out_perp.length_squared()))
+  def ray_out_parallel = parallel_factor ⊗ n
+  ray_out_perp ⊕ ray_out_parallel
 
 
 operator ⊕ :

@@ -14,7 +14,7 @@ class HitRecord(mutable p          = Pt(),
     // Sets the hit record normal vector.
     // NOTE: the parameter `outward_normal` is assumed to have unit length.
     front_face := (r.direction dot outward_normal) < 0
-    normal := (if front_face | outward_normal | -outward_normal)
+    normal := (if front_face | outward_normal | ⊖outward_normal)
   
 interface hittable:  
   abstract method hit(r, ray_t, rec)

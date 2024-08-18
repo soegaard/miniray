@@ -15,7 +15,7 @@ class Lambertian(albedo :: Color):
   extends Material
 
   override scatter(ray_in, rec, attenuation_box, scattered_box):
-    def mutable scatter_direction = rec.normal + random_unit_vector()
+    def mutable scatter_direction = rec.normal ⊕ random_unit_vector()
     // Catch degenerate scatter direction
     when scatter_direction.near_zero()
     |  scatter_direction := rec.normal      
@@ -30,7 +30,7 @@ class Metal(albedo = Color(1.,1.,1.),
   
   override scatter(ray_in, rec, attenuation_box, scattered_box):
     def reflected =   reflect(ray_in.direction, rec.normal)
-                    + fuzz * random_unit_vector()
+                    ⊕ fuzz ⊗ random_unit_vector()
     scattered_box.value   := Ray(rec.p, reflected)
     attenuation_box.value := albedo
     (scattered_box.value.direction dot rec.normal) > 0
