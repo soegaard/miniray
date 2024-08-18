@@ -6,7 +6,7 @@ import "material.rhm"  open
 
 // p is point, normal a vector and t a number
 class HitRecord(mutable p          :: Pt       = Pt(),
-                mutable normal     :: Vec      = Vec(),
+                mutable normal     :: Vec3     = Vec(),
                 mutable mat        :: Material = Material(),
                 mutable t          :: Number   = 0,
                 mutable front_face :: Boolean  = #true):

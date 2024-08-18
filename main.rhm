@@ -81,8 +81,8 @@ fun main():
 
   cam.aspect_ratio      := 16. / 9.
   cam.image_width       := 400
-  cam.samples_per_pixel := 2
-  cam.max_depth         := 10
+  cam.samples_per_pixel := 100
+  cam.max_depth         := 50
   
   cam.vfov              := 20
   cam.look_from         := Pt(13.,  2.,  3.)
