@@ -1,0 +1,11 @@
+#lang rhombus
+
+export: int
+
+// convert a number x to an integer by rounding down
+fun int(x):
+  math.exact(math.floor(x))
+
+// convert a number x to a floating point number
+fun fl(x):
+  1. * x

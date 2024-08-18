@@ -1,0 +1,12 @@
+#lang rhombus
+export: random random2
+
+fun random():
+  // Returns a random real in [0,1).
+  // In Rhombus it's in ]0,1[.
+  math.random()
+
+fun random2(min,max):
+  // Returns a random real in [0,1).
+  // In Rhombus it's in ]0,1[.
+  min + (max-min)*random()

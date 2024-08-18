@@ -1,7 +1,7 @@
 #lang rhombus
 export: Vec3 Vec Pt
         cross dot
-        + - * /
+        ⊕ ⊖ ⊗ ⊘
         += -= *= /=
         unit_vector
         random_unit_vector
@@ -9,13 +9,7 @@ export: Vec3 Vec Pt
         random_in_unit_disk
         reflect refract
 
-import: rhombus: only: + - * /
-
-fun random():
-  math.random()
-
-fun random2(min,max):
-  min + (max-min)*math.random()
+import: "random.rhm" open
 
 class Vec3(mutable x=0., mutable y=0. , mutable z=0.):
   nonfinal
@@ -95,54 +89,52 @@ fun reflect(v, n):
   v - (2 * (v dot n)) * n
 
 fun refract(uv, n, eta_i_over_eta_t):
-  def cos_theta        = math.min(-uv dot n, 1.0)
-  def ray_out_perp     = eta_i_over_eta_t * (uv + cos_theta * n)
+  def cos_theta        = math.min( ⊖uv dot n, 1.0)
+  def ray_out_perp     = eta_i_over_eta_t * (uv + (cos_theta * n))
   def ray_out_parallel =
     - math.sqrt(math.abs(1. - ray_out_perp.length_squared())) * n
   ray_out_perp + ray_out_parallel
 
 
-operator + :
+operator ⊕ :
   ~stronger_than < > <= >= ==
-  ~weaker_than ** * / div mod rem
-  ~same_as -
-| (v :: Vec3) + (w :: Vec3) :  v.add(w)
-| (v :: Vec3) + c           :  v.add_constant(c)
-|  c          + (w :: Vec3) :  w.add_constant(c)
-|  a          + b           :  a rhombus.(+) b
+  ~weaker_than ⊗ ⊘ 
+  ~same_as ⊖
+| (v :: Vec3) ⊕ (w :: Vec3) :  v.add(w)
+| (v :: Vec3) ⊕ c           :  v.add_constant(c)
+|  c          ⊕ (w :: Vec3) :  w.add_constant(c)
+|  a          ⊕ b           :  a + b
 
-operator - :
+operator ⊖ :
   ~stronger_than < > <= >= ==
-  ~weaker_than ** * / div mod rem
-  ~same_as +
-|             - (w :: Vec3) :  w.negate()
-|             -  w          :  rhombus.(-) w
-| (v :: Vec3) - (w :: Vec3) :  v.subtract(w)
-| (v :: Vec3) -  c          :  v.subtract_constant(c)
-|  c          - (w :: Vec3) :  Vec3(c,c,c) - w
-|  a          -  b          :  a rhombus.(-) b
+  ~weaker_than ⊗ ⊘
+  ~same_as ⊕
+|             ⊖ (w :: Vec3) :  w.negate()
+|             ⊖  w          :  - w
+| (v :: Vec3) ⊖ (w :: Vec3) :  v.subtract(w)
+| (v :: Vec3) ⊖  c          :  v.subtract_constant(c)
+|  c          ⊖ (w :: Vec3) :  Vec3(c,c,c) - w
+|  a          ⊖  b          :  a - b
 
-operator * :
+operator ⊗ :
   ~stronger_than < > <= >= ==
-  ~weaker_than **
-  ~same_as /
-| (v :: Vec3) *  (w :: Vec3) : v.element_product(w)
-| (v :: Vec3) *  c           : v.scale(c)
-|  c          * (v :: Vec3)  : v.scale(c)
-|  a          *  b           : a rhombus.(*) b
+  ~same_as ⊘
+| (v :: Vec3) ⊗  (w :: Vec3) : v.element_product(w)
+| (v :: Vec3) ⊗  c           : v.scale(c)
+|  c          ⊗ (v :: Vec3)  : v.scale(c)
+|  a          ⊗  b           : a * b
 
-operator / :
+operator ⊘ :
   ~stronger_than < > <= >= ==
-  ~weaker_than **
-  ~same_as *
-| (v :: Vec3) /  c           : v.scale(1/c)
-|  a          /  b           : a rhombus.(/) b
+  ~same_as ⊗
+| (v :: Vec3) ⊘  c           : v.scale(1/c)
+|  a          ⊘  b           : a / b
 
 
-operator cross : ~stronger_than + - 
+operator cross : ~stronger_than ⊕ ⊖ 
 | (v :: Vec3) cross  (w :: Vec3) : v.cross(w)
 
-operator dot : ~stronger_than + - 
+operator dot : ~stronger_than ⊕ ⊖ 
 | (v :: Vec3) dot  (w :: Vec3) : v.dot_product(w)
 
 operator += : ~same_as :=

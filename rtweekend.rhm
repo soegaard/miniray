@@ -1,19 +1,24 @@
 #lang rhombus
 import:
   "color.rhm"    open
-  "vec3.rhm"     open
-  "ray.rhm"      open
+  "convert.rhm"  open
   "interval.rhm" open
+  "random.rhm"   open
+  "ray.rhm"      open
+  "vec3.rhm"     open
   "clamped-real.rhm" open
+  
 
 
-export: infinity pi degrees_to_radians fl int log
-export: random random_double clamp clamp01
+export: infinity pi degrees_to_radians log
+export: clamp clamp01
 export:
   all_from("color.rhm")
-  all_from("vec3.rhm")
-  all_from("ray.rhm")
+  all_from("convert.rhm")
   all_from("interval.rhm")
+  all_from("random.rhm")
+  all_from("ray.rhm")
+  all_from("vec3.rhm")
   all_from("clamped-real.rhm")
 
 // Constants
@@ -26,27 +31,10 @@ def pi = 3.1415926535897932385
 fun degrees_to_radians(degrees):
   degrees * pi / 180.0
 
-// convert a number x to a floating point number
-fun fl(x):
-  1. * x
-
-// convert a number x to an integer by rounding down
-fun int(x):
-  math.exact(math.floor(x))
-
 // Logging - for showing progress
 fun log(x, ...):
   Port.Output.current_error().println(x, ...)
 
-fun random():
-  // Returns a random real in [0,1).
-  // In Rhombus it's in ]0,1[.
-  math.random()
-
-fun random_double(min,max):
-  // Returns a random real in [0,1).
-  // In Rhombus it's in ]0,1[.
-  min + (max-min)*random()
 
 fun clamp(x,from,to):
   math.max(from, math.min(to,x))

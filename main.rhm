@@ -62,7 +62,7 @@ fun world3():
         | choose_mat < 0.95 :
             // metal
             def albedo = random_color2(0.5, 1)
-            def fuzz = random_double(0, 0.5)
+            def fuzz = random2(0, 0.5)
             def sphere_material = Metal(albedo, fuzz)
             world := world.add(Sphere(center, 0.2, sphere_material))
         | ~else:    
@@ -75,14 +75,14 @@ fun world3():
 
 fun main():
   // World
-  def world = world3()
+  def world = world1()
   // Camera
   def cam = Camera()  
 
   cam.aspect_ratio      := 16. / 9.
   cam.image_width       := 400
-  cam.samples_per_pixel := 100
-  cam.max_depth         := 50
+  cam.samples_per_pixel := 2
+  cam.max_depth         := 10
   
   cam.vfov              := 20
   cam.look_from         := Pt(13.,  2.,  3.)

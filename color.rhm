@@ -1,7 +1,11 @@
 #lang rhombus
 export Color write_color random_color random_color2
+
 import "interval.rhm" open
 import "vec3.rhm"     open
+import "convert.rhm"  open
+import "random.rhm"   open
+
 
 // Listing 5
 // 3.1 Color Utility Functions
@@ -12,9 +16,6 @@ class Color():
   | (x, y, z)   : super(x,y,z)()
   | (v :: Vec3) : super(v.x, v.y, v.z)()
 
-// convert a number x to an integer by rounding down
-fun int(x):
-  math.exact(math.floor(x))
 
 // conversion from linear color space
 fun linear_to_gamma(linear_component):
@@ -40,9 +41,6 @@ fun write_color(pixel):
   
 fun random_color():
   Color(math.random(), math.random(), math.random())
-
-fun random2(min, max):
-  min + (max - min)*math.random()
 
 fun random_color2(min, max):
   Color(random2(min, max), random2(min, max), random2(min, max))
