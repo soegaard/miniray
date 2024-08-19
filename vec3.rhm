@@ -1,5 +1,5 @@
-#lang rhombus/static
-export: Vec3 Vec Pt
+#lang rhombus/static/and_meta
+export: Vec3 Vec Pt Color
         cross dot
         ⊕ ⊖ ⊗ ⊘
         += -= *= /=
@@ -10,20 +10,22 @@ export: Vec3 Vec Pt
         reflect refract
 
 import: "random.rhm" open
+        rhombus/meta
 
-class Vec3(mutable x=0., mutable y=0. , mutable z=0.):
+class Vec3(type=#'vec, mutable x=0., mutable y=0. , mutable z=0.):
   nonfinal
   private implements MutableIndexable
-  // constructor (x=0, y=0, z=0):  super(x,y,z)
-  method add(w :: Vec3):            Vec3(x+w.x, y+w.y, z+w.z)
-  method add_constant(c):           Vec3(x+c, y+c, z+c)
-  method negate():                  Vec3(-x,-y,-z)
-  method subtract(w :: Vec3):       Vec3(x-w.x, y-w.y, z-w.z)
-  method subtract_constant(c):      Vec3(x-c, y-c, z-c)
-  method scale(c):                  Vec3(x*c, y*c, z*c)
-  method element_product(w::Vec3):  Vec3(x*w.x, y*w.y, z*w.z)
+  // constructor (x=0, y=0, z=0):      super()(#'vec, x,y,z)
+  method add(w :: Vec3):            Vec3(type, x+w.x, y+w.y, z+w.z)
+  method add_constant(c):           Vec3(type, x+c, y+c, z+c)
+  method negate():                  Vec3(type, -x,-y,-z)
+  method subtract(w :: Vec3):       Vec3(type, x-w.x, y-w.y, z-w.z)
+  method subtract_constant(c):      Vec3(type, x-c, y-c, z-c)
+  method scale(c):                  Vec3(type, x*c, y*c, z*c)
+  method element_product(w::Vec3):  Vec3(type, x*w.x, y*w.y, z*w.z)
   method dot_product(w::Vec3):      x * w.x  +  y * w.y  +  z * w.z
-  method cross(w::Vec3):            Vec3(y*w.z - z*w.y,
+  method cross(w::Vec3):            Vec3(type, 
+                                         y*w.z - z*w.y,
                                          z*w.x - x*w.z,
                                          x*w.y - y*w.x)
   method add_assign(w::Vec3):       x:=x+w.x; y:=y+w.y; z:=z+w.z; 
@@ -35,8 +37,9 @@ class Vec3(mutable x=0., mutable y=0. , mutable z=0.):
     def s=1e-8
     (math.abs(x) < s) && (math.abs(y) < s) && (math.abs(z) < s)
   method unit()           :~ Vec3:   this ⊘ this.length()
-  method random()         :~ Vec3:   Vec3(random(), random(), random())
-  method random2(min,max) :~ Vec3:   Vec3(random2(min,max),
+  method random()         :~ Vec3:   Vec3(type, random(), random(), random())
+  method random2(min,max) :~ Vec3:   Vec3(type, 
+                                          random2(min,max),
                                           random2(min,max),
                                           random2(min,max))                    
   method display():             print(x, y, z)
@@ -57,10 +60,10 @@ fun unit_vector(v :: Vec3) :~ Vec3 :
   v.unit()
 
 fun random_vector() :~ Vec3 :
-  Vec3(random(), random(), random())
+  Vec3(#'vec, random(), random(), random())
   
 fun random2_vector(min,max) :~ Vec3 :
-  Vec3(random2(min,max), random2(min,max), random2(min,max))
+  Vec3(#'vec, random2(min,max), random2(min,max), random2(min,max))
 
 
 fun random_in_unit_sphere() :~ Vec3 :
@@ -80,7 +83,7 @@ fun random_on_hemisphere(normal) :~ Vec3 :
   | -on_unit_sphere
 
 fun random_in_unit_disk() :~ Vec3 :
-  def p = Vec(random2(-1., 1.), random2(-1., 1.), 0.0)
+  def p = Vec3(#'vec, random2(-1., 1.), random2(-1., 1.), 0.0)
   if p.length_squared() < 1
   | p
   | random_in_unit_disk()  
@@ -148,8 +151,13 @@ operator /= : ~same_as :=
 | (v :: Vec3) /= c           :  v.scale_assign(1/c)
 
 
-class Pt():    extends Vec3
-class Vec():   extends Vec3
+fun Color(x=0., y=0., z=0.): Vec3(#'color, x, y, z)
+fun Pt(   x=0., y=0., z=0.): Vec3(#'pt,    x, y, z)
+fun Vec(  x=0., y=0., z=0.): Vec3(#'vec,   x, y, z)
+
+annot.macro 'Color': 'Vec3'
+annot.macro 'Pt':    'Vec3'
+annot.macro 'Vec':   'Vec3'
 
 
 // def o = Vec3()

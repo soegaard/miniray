@@ -10,12 +10,6 @@ import "random.rhm"   open
 // Listing 5
 // 3.1 Color Utility Functions
 
-class Color():
-  extends Vec3
-  constructor
-  | (x, y, z)   : super(x,y,z)()
-  | (v :: Vec3) : super(v.x, v.y, v.z)()
-
 
 // conversion from linear color space
 fun linear_to_gamma(linear_component):
